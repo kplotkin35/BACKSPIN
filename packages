@@ -1,0 +1,40 @@
+backspin/
+├── pyproject.toml
+├── README.md
+├── .gitignore
+├── src/
+│   └── backspin/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── config.py
+│       ├── domain/
+│       │   ├── __init__.py
+│       │   └── models.py
+│       ├── sensors/
+│       │   ├── __init__.py
+│       │   └── base.py
+│       ├── detection/
+│       │   ├── __init__.py
+│       │   ├── engine.py
+│       │   └── rules.py
+│       ├── ai/
+│       │   ├── __init__.py
+│       │   └── analyzer.py
+│       ├── policy/
+│       │   ├── __init__.py
+│       │   └── engine.py
+│       ├── response/
+│       │   ├── __init__.py
+│       │   └── containment.py
+│       ├── deception/
+│       │   ├── __init__.py
+│       │   └── honeypot.py
+│       ├── incidents/
+│       │   ├── __init__.py
+│       │   └── repository.py
+│       └── pipeline.py
+└── tests/
+    ├── test_detection.py
+    ├── test_policy.py
+    ├── test_pipeline.py
+    └── test_scoring.py
