@@ -1,0 +1,29 @@
+Sensor
+  │
+  ▼
+Event
+  │
+  ▼
+Detection Engine ───────► Detection
+  │                         │
+  ▼                         ▼
+Threat Scoring ────────► AI Analyzer
+                            │
+                            ▼
+                      Recommendation
+                            │
+                            ▼
+                       Policy Engine
+                       │           │
+                       ▼           ▼
+                  Containment   Deception
+                       │           │
+                       └─────┬─────┘
+                             ▼
+                         Incident
+                             │
+                             ▼
+                       JSONL Storage
+                             │
+                             ▼
+                           CLI
