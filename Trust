@@ -1,0 +1,7 @@
+|Component            |Trust Level|Main Risk              |Required Control                |
+|---------------------|----------:|-----------------------|--------------------------------|
+|Sensor               |Low        |Tampered telemetry     |Validation and integrity checks |
+|AI provider          |Untrusted  |Unsafe recommendation  |Strict schema validation        |
+|Policy engine        |High       |Incorrect authorization|Tests and signed configuration  |
+|Response executor    |Privileged |Host damage            |Least privilege and allowlists  |
+|Deception environment|Isolated   |Escape or data exposure|Network and filesystem isolation|
