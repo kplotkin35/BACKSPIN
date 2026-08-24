@@ -1,0 +1,7 @@
+|Action              |Default Mode             |Approval         |Scope               |
+|--------------------|-------------------------|-----------------|--------------------|
+|Alert               |Automatic                |Not required     |Local incident      |
+|Quarantine file     |Dry-run                  |Optional         |Authorized host     |
+|Isolate host        |Manual initially         |Required         |Authorized host     |
+|Activate deception  |Automatic after isolation|Policy-controlled|Isolated environment|
+|External retaliation|Prohibited               |Never allowed    |Out of scope        |
