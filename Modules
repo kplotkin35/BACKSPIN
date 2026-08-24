@@ -1,0 +1,9 @@
+```text
+src/backspin/domain/models.py
+src/backspin/sensors/base.py
+src/backspin/sensors/synthetic.py
+src/backspin/normalization/normalizer.py
+src/backspin/detection/rules.py
+src/backspin/detection/engine.py
+src/backspin/incidents/repository.py
+```
