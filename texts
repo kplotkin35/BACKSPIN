@@ -1,0 +1,1514 @@
+BackSpin GitHub Structure and Step-by-Step Development Plan
+
+1. Create the GitHub Repository
+
+Create a new GitHub repository with:
+
+Repository name: backspin
+Visibility: Private during development
+License: Apache-2.0
+Initialize with:
+- README.md
+- .gitignore
+- LICENSE
+
+Recommended repository settings:
+
+* enable branch protection for main
+* require pull requests
+* require status checks before merging
+* disable direct pushes to main
+* enable Dependabot
+* enable secret scanning
+* enable code scanning when available
+* require signed commits later for production work
+
+Use this initial branch structure:
+
+main
+develop
+feature/*
+fix/*
+docs/*
+security/*
+
+Recommended workflow:
+
+feature branch
+      ↓
+pull request
+      ↓
+automated tests and security checks
+      ↓
+code review
+      ↓
+merge into develop
+      ↓
+release pull request
+      ↓
+main
+
+For a small project, you can begin with only:
+
+main
+feature/*
+
+2. Create the Initial Repository Files
+
+Create this structure first:
+
+backspin/
+├── .github/
+│   ├── CODEOWNERS
+│   ├── dependabot.yml
+│   ├── pull_request_template.md
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   ├── security.yml
+│   │   └── release.yml
+│   └── ISSUE_TEMPLATE/
+│       ├── bug_report.md
+│       ├── feature_request.md
+│       └── security_issue.md
+├── docs/
+│   ├── architecture.md
+│   ├── threat-model.md
+│   ├── development-plan.md
+│   ├── api.md
+│   ├── event-schema.md
+│   ├── policy-model.md
+│   ├── deception-design.md
+│   ├── deployment.md
+│   └── testing-strategy.md
+├── src/
+│   └── backspin/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── adversarial/
+│   └── fixtures/
+├── configs/
+│   ├── development.yaml
+│   ├── test.yaml
+│   └── production.example.yaml
+├── scripts/
+│   ├── setup-dev.sh
+│   ├── run-demo.sh
+│   └── validate-config.py
+├── runtime/
+│   └── .gitkeep
+├── .env.example
+├── .gitignore
+├── LICENSE
+├── README.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CHANGELOG.md
+└── pyproject.toml
+
+Do not commit:
+
+.env
+runtime/incidents.jsonl
+runtime/*.db
+private keys
+API keys
+production credentials
+real telemetry containing sensitive data
+
+3. Add the Project Documentation
+
+The project specification should not remain only in one large document. Split it into focused documents.
+
+README.md
+
+Use the README for:
+
+* project purpose
+* safety scope
+* current capabilities
+* quick installation
+* quick demo
+* test command
+* architecture summary
+* links to detailed documentation
+
+Suggested README structure:
+
+# BackSpin
+Detect. Contain. Deceive. Learn. Recover.
+## Overview
+## Safety Scope
+## Current Status
+## Quick Start
+## Architecture
+## Repository Structure
+## Development
+## Testing
+## Documentation
+## License
+
+docs/architecture.md
+
+Move these sections here:
+
+* project overview
+* system architecture
+* security boundaries
+* response state machine
+* component responsibilities
+* data flow
+
+Include this architecture:
+
+Sensor
+  ↓
+Event Normalization
+  ↓
+Event Bus
+  ↓
+Detection Engine
+  ↓
+Threat Scoring
+  ↓
+AI Analysis
+  ↓
+Schema Validation
+  ↓
+Policy Engine
+  ↓
+Authorization
+  ↓
+Containment / Deception
+  ↓
+Telemetry
+  ↓
+Incident Reporting
+
+docs/threat-model.md
+
+Document:
+
+* protected assets
+* trust boundaries
+* attacker capabilities
+* defender capabilities
+* abuse cases
+* security assumptions
+* out-of-scope behavior
+* mitigations
+
+Use a table such as:
+
+Component	Trust Level	Main Risk	Required Control
+Sensor	Low	Tampered telemetry	Validation and integrity checks
+AI provider	Untrusted	Unsafe recommendation	Strict schema validation
+Policy engine	High	Incorrect authorization	Tests and signed configuration
+Response executor	Privileged	Host damage	Least privilege and allowlists
+Deception environment	Isolated	Escape or data exposure	Network and filesystem isolation
+
+docs/event-schema.md
+
+Define:
+
+* event types
+* required fields
+* optional fields
+* validation rules
+* provenance requirements
+* serialization format
+* versioning strategy
+
+Use a versioned schema:
+
+{
+  "schema_version": "1.0",
+  "event_id": "uuid",
+  "timestamp": "ISO-8601",
+  "host_id": "host-id",
+  "event_type": "process_start",
+  "source": "endpoint_sensor",
+  "data": {}
+}
+
+docs/policy-model.md
+
+Document:
+
+* allowed actions
+* approval requirements
+* dry-run behavior
+* scope restrictions
+* confidence thresholds
+* fail-closed behavior
+* audit requirements
+
+Example policy table:
+
+Action	Default Mode	Approval	Scope
+Alert	Automatic	Not required	Local incident
+Quarantine file	Dry-run	Optional	Authorized host
+Isolate host	Manual initially	Required	Authorized host
+Activate deception	Automatic after isolation	Policy-controlled	Isolated environment
+External retaliation	Prohibited	Never allowed	Out of scope
+
+docs/deception-design.md
+
+Document:
+
+* isolation requirements
+* fake resource design
+* telemetry collection
+* credential safety
+* escape prevention
+* reset and cleanup procedures
+
+docs/testing-strategy.md
+
+Move the testing strategy here and define:
+
+* unit tests
+* integration tests
+* adversarial tests
+* performance tests
+* failure-injection tests
+* release gates
+
+4. Create the Python Project Skeleton
+
+Create pyproject.toml first.
+
+Use a src layout:
+
+src/backspin/
+├── __init__.py
+├── cli.py
+├── config.py
+├── pipeline.py
+├── domain/
+├── sensors/
+├── normalization/
+├── event_bus/
+├── detection/
+├── scoring/
+├── ai/
+├── policy/
+├── authorization/
+├── response/
+├── deception/
+├── intelligence/
+├── incidents/
+├── reporting/
+└── observability/
+
+Recommended responsibility boundaries:
+
+domain/
+    Shared models and enums
+sensors/
+    Read-only telemetry collection
+normalization/
+    Convert raw sensor data into normalized events
+event_bus/
+    Queueing and asynchronous event delivery
+detection/
+    Deterministic and behavioral detection rules
+scoring/
+    Threat score calculation
+ai/
+    AI provider interfaces and structured analysis
+policy/
+    Policy evaluation and action approval
+authorization/
+    Identity, scope, and approval checks
+response/
+    Local containment adapters
+deception/
+    Isolated decoy environments
+intelligence/
+    IOC and TTP extraction
+incidents/
+    Incident lifecycle and persistence
+reporting/
+    Human-readable and machine-readable reports
+observability/
+    Metrics, audit logs, and health checks
+
+Do not implement every directory at once. Create the directories as milestones require them.
+
+5. Create GitHub Issues Before Writing Features
+
+Create one GitHub issue for each major capability.
+
+Use labels such as:
+
+area:architecture
+area:sensor
+area:normalization
+area:detection
+area:scoring
+area:ai
+area:policy
+area:response
+area:deception
+area:intelligence
+area:reporting
+area:testing
+area:security
+priority:high
+priority:medium
+priority:low
+type:feature
+type:bug
+type:documentation
+type:research
+status:blocked
+
+Create these initial issues:
+
+#1 Define repository structure and development workflow
+#2 Add domain event models
+#3 Add event schema validation
+#4 Add synthetic sensor
+#5 Add detection engine
+#6 Add configurable threat scoring
+#7 Add incident model and storage
+#8 Add policy engine
+#9 Add dry-run containment adapter
+#10 Add AI analyzer interface
+#11 Add AI output schema validation
+#12 Add incident timeline
+#13 Add IOC extraction
+#14 Add simulated deception environment
+#15 Add deception telemetry
+#16 Add incident report generation
+#17 Add Linux read-only process sensor
+#18 Add integration test pipeline
+#19 Add adversarial test suite
+#20 Add CI and security automation
+
+Each issue should contain:
+
+## Objective
+## Scope
+## Out of Scope
+## Acceptance Criteria
+## Security Considerations
+## Test Requirements
+
+6. Milestone 0 — Repository and Safety Foundation
+
+Create a milestone named:
+
+Milestone 0: Repository Foundation
+
+Complete these tasks:
+
+* create repository
+* add license
+* add README
+* add contribution guidelines
+* add security policy
+* add code owners
+* add CI workflow
+* add formatting and linting
+* add test configuration
+* add threat model
+* define prohibited behavior
+* define dry-run defaults
+
+The first commit can be:
+
+chore: initialize BackSpin repository
+
+The first pull request should contain only:
+
+* repository structure
+* documentation
+* CI
+* empty package modules
+* no privileged response functionality
+
+7. Milestone 1 — Core Event Pipeline
+
+Create:
+
+Milestone 1: Core Event Pipeline
+
+Implement:
+
+Sensor → Normalizer → Event → Detection → Incident Log
+
+Start with a synthetic sensor so development does not depend on a real operating system.
+
+Add these modules:
+
+src/backspin/domain/models.py
+src/backspin/sensors/base.py
+src/backspin/sensors/synthetic.py
+src/backspin/normalization/normalizer.py
+src/backspin/detection/rules.py
+src/backspin/detection/engine.py
+src/backspin/incidents/repository.py
+
+Implement only these event types initially:
+
+PROCESS_START
+FILE_CREATE
+NETWORK_CONNECT
+PERSISTENCE_DETECTED
+
+Add tests for:
+
+* valid event creation
+* invalid event rejection
+* event serialization
+* synthetic event generation
+* suspicious process detection
+* persistence detection
+* incident storage
+
+Recommended commits:
+
+feat(domain): add normalized security event model
+feat(sensor): add synthetic telemetry sensor
+feat(detection): add initial deterministic rules
+feat(incidents): add JSONL incident repository
+test: cover core event pipeline
+
+At the end of this milestone, the system should be able to:
+
+generate event
+  ↓
+normalize event
+  ↓
+evaluate detection rule
+  ↓
+create incident
+  ↓
+write incident to local storage
+
+8. Milestone 2 — Threat Scoring and Correlation
+
+Create:
+
+Milestone 2: Detection and Risk Scoring
+
+Add:
+
+src/backspin/scoring/scorer.py
+src/backspin/detection/correlation.py
+src/backspin/domain/evidence.py
+
+Implement:
+
+* configurable scoring weights
+* severity mapping
+* trusted-context deductions
+* event sequence correlation
+* score explanations
+* score bounds
+* duplicate detection handling
+
+Example configuration:
+
+scoring:
+  process_suspicion: 30
+  persistence: 50
+  network_anomaly: 40
+  credential_access: 60
+  trusted_context_discount: 20
+  isolation_threshold: 80
+
+Do not hard-code all scoring behavior in detection rules. Keep detection evidence separate from scoring.
+
+Use this flow:
+
+Event
+  ↓
+Detection
+  ↓
+Evidence
+  ↓
+Score
+  ↓
+Score Explanation
+
+Add tests for:
+
+* low-risk events
+* high-risk event sequences
+* trusted process context
+* duplicate events
+* score maximums
+* score minimums
+* missing evidence
+* malformed metadata
+
+Recommended commits:
+
+feat(scoring): add configurable threat scoring
+feat(detection): add event correlation
+test(scoring): cover score explanations and thresholds
+
+9. Milestone 3 — Policy and Safe Response
+
+Create:
+
+Milestone 3: Policy-Controlled Response
+
+Implement:
+
+Detection → Score → Policy → Dry-Run Response
+
+Add:
+
+src/backspin/policy/engine.py
+src/backspin/policy/models.py
+src/backspin/authorization/checks.py
+src/backspin/response/base.py
+src/backspin/response/simulation.py
+src/backspin/response/audit.py
+
+Start with these actions:
+
+ALERT
+QUARANTINE_SIMULATION
+ISOLATE_SIMULATION
+
+Do not implement real host isolation yet.
+
+Every action should include:
+
+{
+  "action_id": "uuid",
+  "action_type": "isolate",
+  "incident_id": "uuid",
+  "host_id": "host-id",
+  "requested_by": "policy-engine",
+  "approved": false,
+  "dry_run": true,
+  "reason": "risk threshold exceeded",
+  "timestamp": "ISO-8601"
+}
+
+Policy requirements:
+
+* reject unknown actions
+* reject actions outside scope
+* reject malformed recommendations
+* reject low-confidence recommendations
+* reject actions when authorization is missing
+* default to dry-run
+* record every decision
+* fail closed when policy evaluation fails
+
+Recommended commits:
+
+feat(policy): add policy decision model
+feat(response): add dry-run containment adapter
+feat(audit): record response decisions
+test(policy): cover authorization and fail-closed behavior
+
+At the end of this milestone, no action should modify the host.
+
+10. Milestone 4 — AI Analysis Interface
+
+Create:
+
+Milestone 4: Structured AI Analysis
+
+Implement:
+
+src/backspin/ai/base.py
+src/backspin/ai/models.py
+src/backspin/ai/deterministic.py
+src/backspin/ai/validation.py
+
+The AI must return structured data, not commands.
+
+Example:
+
+{
+  "schema_version": "1.0",
+  "classification": "suspicious_persistence",
+  "confidence": 0.86,
+  "summary": "Persistence activity was observed after a suspicious process start.",
+  "evidence_refs": [
+    "event-id-1",
+    "event-id-2"
+  ],
+  "recommended_action": "quarantine",
+  "requires_human_approval": true
+}
+
+The AI output must be validated before reaching policy.
+
+Use this flow:
+
+Events
+  ↓
+AI Analyzer
+  ↓
+Structured Recommendation
+  ↓
+Schema Validation
+  ↓
+Policy Engine
+
+The AI provider must not receive:
+
+* unrestricted shell access
+* arbitrary tool execution
+* credentials
+* production secrets
+* unnecessary sensitive telemetry
+
+Add a deterministic analyzer first. Add an external AI provider only after the interface and validation are tested.
+
+Required tests:
+
+* valid recommendation
+* invalid recommendation
+* unknown action
+* confidence outside range
+* missing evidence references
+* prompt-injection-like event metadata
+* AI provider timeout
+* AI provider unavailable
+* deterministic fallback
+
+Recommended commits:
+
+feat(ai): add analyzer interface
+feat(ai): add structured recommendation schema
+feat(ai): add recommendation validation
+test(ai): cover malformed and adversarial output
+
+11. Milestone 5 — Incident Lifecycle and Reporting
+
+Create:
+
+Milestone 5: Incident Intelligence
+
+Add:
+
+src/backspin/incidents/models.py
+src/backspin/incidents/timeline.py
+src/backspin/intelligence/ioc.py
+src/backspin/intelligence/ttp.py
+src/backspin/reporting/json_report.py
+src/backspin/reporting/text_report.py
+
+Implement:
+
+* incident creation
+* incident updates
+* chronological timeline
+* evidence references
+* IOC extraction
+* IOC provenance
+* TTP tagging
+* JSON report
+* human-readable report
+
+Example IOC model:
+
+{
+  "indicator_id": "uuid",
+  "indicator_type": "sha256",
+  "value": "hash-value",
+  "confidence": 0.91,
+  "source_event_id": "event-id",
+  "source_incident_id": "incident-id",
+  "first_seen": "ISO-8601",
+  "last_seen": "ISO-8601"
+}
+
+Do not treat every string as an IOC. Require:
+
+* type validation
+* normalization
+* provenance
+* confidence
+* deduplication
+
+Recommended commits:
+
+feat(incidents): add incident timeline
+feat(intelligence): add IOC extraction
+feat(reporting): add JSON and text incident reports
+test(reporting): cover incident output
+
+12. Milestone 6 — Deception Environment
+
+Create:
+
+Milestone 6: Isolated Deception
+
+Begin with a simulation-only implementation:
+
+src/backspin/deception/base.py
+src/backspin/deception/simulation.py
+src/backspin/deception/telemetry.py
+
+Implement:
+
+* activation after policy approval
+* fake resource registration
+* interaction logging
+* session identifiers
+* command or request metadata
+* reset behavior
+* cleanup behavior
+
+The first deception environment should not expose:
+
+* real credentials
+* production files
+* real administrative interfaces
+* unrestricted network access
+* host secrets
+* reusable authentication tokens
+
+Use this flow:
+
+Approved containment
+  ↓
+Deception activation
+  ↓
+Controlled interaction
+  ↓
+Telemetry event
+  ↓
+IOC/TTP extraction
+  ↓
+Incident update
+
+Recommended commits:
+
+feat(deception): add isolated deception interface
+feat(deception): add simulation environment
+feat(deception): record interaction telemetry
+test(deception): cover activation and cleanup
+
+Only after the simulation is stable should you consider a real sandbox or honeypot deployment.
+
+13. Milestone 7 — Real Read-Only Sensor
+
+Create:
+
+Milestone 7: Supported Host Sensor
+
+Choose one operating system first. Linux is a practical starting point.
+
+Implement read-only telemetry before implementing any real response.
+
+Suggested modules:
+
+src/backspin/sensors/linux/
+├── __init__.py
+├── process_sensor.py
+├── file_sensor.py
+└── network_sensor.py
+
+Start with:
+
+* process creation observation
+* executable path
+* process identifier
+* parent process identifier
+* command-line metadata where permitted
+* timestamp
+* host identifier
+
+Do not begin with:
+
+* process termination
+* firewall modification
+* account changes
+* kernel modules
+* persistence changes
+* arbitrary command execution
+
+The sensor should:
+
+* tolerate permission errors
+* handle missing processes
+* validate all fields
+* avoid collecting unnecessary secrets
+* support sampling
+* support shutdown
+* log backend failures
+* continue operating when one event source fails
+
+Recommended commits:
+
+feat(sensor): add Linux read-only process sensor
+feat(sensor): add sensor error handling
+test(sensor): cover permission and malformed-event failures
+
+14. Milestone 8 — Integration Pipeline
+
+Create:
+
+Milestone 8: End-to-End Integration
+
+Connect:
+
+Sensor
+  ↓
+Normalizer
+  ↓
+Detection
+  ↓
+Scoring
+  ↓
+AI
+  ↓
+Validation
+  ↓
+Policy
+  ↓
+Dry-Run Response
+  ↓
+Incident
+  ↓
+Report
+
+Add integration tests for:
+
+* sensor to detection
+* detection to scoring
+* scoring to AI
+* AI to policy
+* policy to response
+* response to audit log
+* incident to report
+* AI failure fallback
+* storage failure handling
+* malformed event handling
+
+Use fixtures in:
+
+tests/fixtures/
+├── normal_process.json
+├── suspicious_process.json
+├── persistence_sequence.json
+├── malformed_event.json
+├── malicious_metadata.json
+└── ai_recommendation_invalid.json
+
+Recommended commit:
+
+feat(pipeline): connect end-to-end defensive workflow
+
+15. Milestone 9 — Adversarial and Security Testing
+
+Create:
+
+Milestone 9: Security Hardening
+
+Add tests for:
+
+* malformed telemetry
+* oversized event payloads
+* invalid timestamps
+* duplicate event identifiers
+* prompt injection in event fields
+* malicious recommendation fields
+* policy manipulation
+* unauthorized action requests
+* privilege escalation attempts
+* sensor tampering
+* log path traversal
+* log injection
+* deception escape attempts
+* unavailable AI provider
+* unavailable telemetry backend
+* corrupted configuration
+* replayed events
+* clock skew
+* storage exhaustion
+
+Separate adversarial tests from ordinary unit tests:
+
+tests/adversarial/
+├── test_event_injection.py
+├── test_ai_output_attacks.py
+├── test_policy_bypass.py
+├── test_log_integrity.py
+└── test_deception_isolation.py
+
+Every security issue should receive:
+
+* a GitHub issue
+* a severity
+* a reproduction test
+* a fix
+* a regression test
+* a changelog entry if user-impacting
+
+16. Configure GitHub Actions
+
+Create .github/workflows/ci.yml:
+
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+          - "3.13"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Type check
+        run: mypy src
+      - name: Test
+        run: pytest --cov=backspin --cov-report=term-missing
+
+Create .github/workflows/security.yml:
+
+name: Security
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+  schedule:
+    - cron: "30 3 * * 1"
+permissions:
+  contents: read
+jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+
+Add security tools to development dependencies as the project grows:
+
+ruff
+mypy
+pytest
+pytest-cov
+bandit
+pip-audit
+
+Run:
+
+ruff check .
+mypy src
+pytest
+bandit -r src
+pip-audit
+
+17. Add Pull Request Rules
+
+Every pull request should include:
+
+## Summary
+## Related Issue
+## Changes
+## Security Impact
+## Testing
+## Documentation
+## Deployment Impact
+## Checklist
+- [ ] Tests added or updated
+- [ ] Security implications reviewed
+- [ ] No secrets committed
+- [ ] No real credentials used
+- [ ] Dry-run behavior preserved where applicable
+- [ ] Documentation updated
+- [ ] CI passes
+
+Require review from the appropriate code owners.
+
+Example .github/CODEOWNERS:
+
+* @your-github-username
+/src/backspin/policy/ @your-github-username
+/src/backspin/response/ @your-github-username
+/src/backspin/deception/ @your-github-username
+/docs/threat-model.md @your-github-username
+
+18. Use GitHub Projects for Planning
+
+Create a GitHub Project with these columns:
+
+Backlog
+Ready
+In Progress
+Review
+Security Review
+Done
+Blocked
+
+Create custom fields:
+
+Priority
+Milestone
+Area
+Risk
+Estimate
+Requires Security Review
+
+Move issues through the project as follows:
+
+Backlog
+  ↓
+Ready
+  ↓
+In Progress
+  ↓
+Review
+  ↓
+Security Review
+  ↓
+Done
+
+Any issue involving:
+
+* privileged execution
+* host isolation
+* process termination
+* network changes
+* deception deployment
+* credentials
+* external AI providers
+
+should require Security Review.
+
+19. Define the Initial CLI
+
+Keep the CLI safe and explicit.
+
+Recommended commands:
+
+backspin demo
+backspin validate-config
+backspin events validate
+backspin incidents list
+backspin incidents show <incident-id>
+backspin incidents report <incident-id>
+backspin policy check
+backspin response simulate
+backspin health
+
+Do not create ambiguous commands such as:
+
+backspin attack
+backspin retaliate
+backspin execute
+backspin shell
+
+Use explicit dry-run naming:
+
+backspin response simulate
+backspin deception simulate
+
+If real response adapters are added later, require explicit configuration and authorization.
+
+20. Define Configuration Management
+
+Store safe defaults in:
+
+configs/development.yaml
+configs/test.yaml
+configs/production.example.yaml
+
+Example:
+
+environment: development
+telemetry:
+  enabled: true
+  sampling_rate: 1.0
+ai:
+  enabled: false
+  provider: deterministic
+  timeout_seconds: 10
+policy:
+  dry_run: true
+  automatic_containment: false
+  minimum_confidence: 0.70
+deception:
+  enabled: true
+  mode: simulation
+storage:
+  incident_path: runtime/incidents.jsonl
+
+Configuration requirements:
+
+* validate on startup
+* reject unknown fields
+* reject unsafe combinations
+* never store secrets in YAML
+* support environment-variable overrides
+* log effective non-sensitive configuration
+* sign production configuration later
+
+21. Define Release Milestones
+
+Use GitHub milestones:
+
+v0.1.0 — Core Event Pipeline
+v0.2.0 — Detection and Scoring
+v0.3.0 — Policy and Dry-Run Response
+v0.4.0 — AI Analysis
+v0.5.0 — Incident Intelligence
+v0.6.0 — Deception Simulation
+v0.7.0 — Read-Only Linux Sensor
+v0.8.0 — Integration and Hardening
+v1.0.0 — Production Review
+
+v0.1.0
+
+Acceptance criteria:
+
+* normalized event model exists
+* synthetic sensor works
+* deterministic detection works
+* incidents are stored
+* tests pass
+* no privileged actions exist
+
+v0.2.0
+
+Acceptance criteria:
+
+* scoring is configurable
+* event correlation works
+* score explanations are available
+* thresholds are tested
+
+v0.3.0
+
+Acceptance criteria:
+
+* policy engine exists
+* dry-run containment exists
+* all actions are audited
+* fail-closed behavior is tested
+
+v0.4.0
+
+Acceptance criteria:
+
+* AI interface exists
+* structured output is validated
+* AI failure does not disable baseline detection
+* no natural-language output is executed
+
+v0.5.0
+
+Acceptance criteria:
+
+* incident timelines exist
+* IOC extraction exists
+* reports are generated
+* provenance is preserved
+
+v0.6.0
+
+Acceptance criteria:
+
+* deception simulation exists
+* interactions generate telemetry
+* no real secrets are exposed
+* cleanup is tested
+
+v0.7.0
+
+Acceptance criteria:
+
+* one supported operating system has a read-only sensor
+* permission failures are handled
+* sensor output is normalized
+* no host modification occurs
+
+v1.0.0
+
+Acceptance criteria:
+
+* threat model reviewed
+* security tests pass
+* performance benchmarks exist
+* deployment documentation exists
+* privilege model reviewed
+* audit logging reviewed
+* dry-run and production modes are clearly separated
+* release checklist is complete
+
+22. Recommended First Ten Pull Requests
+
+Pull Request 1
+
+chore: initialize repository structure and CI
+
+Include:
+
+* pyproject.toml
+* README
+* license
+* CI
+* empty package
+* test configuration
+
+Pull Request 2
+
+feat(domain): add normalized event and detection models
+
+Include:
+
+* event model
+* detection model
+* serialization
+* validation tests
+
+Pull Request 3
+
+feat(sensor): add synthetic sensor
+
+Include:
+
+* sensor interface
+* synthetic events
+* sensor tests
+
+Pull Request 4
+
+feat(detection): add deterministic detection engine
+
+Include:
+
+* detection interface
+* suspicious process rule
+* persistence rule
+* detection tests
+
+Pull Request 5
+
+feat(scoring): add configurable threat scoring
+
+Include:
+
+* scoring model
+* score explanations
+* threshold tests
+
+Pull Request 6
+
+feat(incidents): add incident storage and timeline
+
+Include:
+
+* incident model
+* JSONL repository
+* timeline
+* storage tests
+
+Pull Request 7
+
+feat(policy): add policy-controlled dry-run response
+
+Include:
+
+* policy engine
+* authorization checks
+* simulation adapter
+* audit records
+
+Pull Request 8
+
+feat(ai): add structured analyzer interface
+
+Include:
+
+* analyzer interface
+* deterministic analyzer
+* recommendation schema
+* validation tests
+
+Pull Request 9
+
+feat(intelligence): add IOC extraction and reports
+
+Include:
+
+* IOC model
+* provenance
+* JSON report
+* text report
+
+Pull Request 10
+
+feat(deception): add simulation deception environment
+
+Include:
+
+* deception interface
+* simulation environment
+* interaction telemetry
+* cleanup tests
+
+23. Recommended Commit Rules
+
+Use small, focused commits.
+
+Good examples:
+
+feat(domain): add security event model
+fix(policy): reject actions outside authorized scope
+test(scoring): cover trusted context deduction
+docs(threat-model): document AI trust boundary
+chore(ci): add Python matrix testing
+refactor(detection): separate rules from scoring
+
+Avoid commits such as:
+
+update stuff
+changes
+final version
+security work
+misc fixes
+
+Do not combine unrelated changes in one pull request.
+
+24. Recommended Development Order
+
+Follow this exact order:
+
+1. Repository and CI
+2. Documentation and threat model
+3. Domain models
+4. Event validation
+5. Synthetic sensor
+6. Detection rules
+7. Threat scoring
+8. Incident storage
+9. Policy engine
+10. Dry-run response
+11. AI interface
+12. AI output validation
+13. Incident timeline
+14. IOC extraction
+15. Reporting
+16. Deception simulation
+17. Read-only operating-system sensor
+18. Integration tests
+19. Adversarial tests
+20. Performance testing
+21. Security review
+22. Production deployment planning
+
+Do not reverse this order by starting with:
+
+* autonomous containment
+* real process termination
+* external network actions
+* unrestricted AI tools
+* production honeypots
+* credential collection
+* kernel-level monitoring
+
+25. Definition of Done
+
+A feature is complete only when:
+
+* implementation exists
+* unit tests exist
+* integration tests exist where applicable
+* failure behavior is defined
+* security impact is documented
+* logs and audit records are present
+* configuration is documented
+* dry-run behavior is preserved
+* no secrets are introduced
+* CI passes
+* documentation is updated
+* the related GitHub issue is closed through the pull request
+
+26. Final GitHub Workflow
+
+The complete development workflow should look like this:
+
+Write specification
+      ↓
+Split specification into documentation and issues
+      ↓
+Create milestone
+      ↓
+Create feature branch
+      ↓
+Implement one bounded capability
+      ↓
+Add tests
+      ↓
+Run linting, type checks, and security checks
+      ↓
+Open pull request
+      ↓
+Review architecture and security impact
+      ↓
+Merge into develop
+      ↓
+Run integration tests
+      ↓
+Create release pull request
+      ↓
+Tag release
+      ↓
+Publish changelog
+      ↓
+Deploy only after authorization and security review
+
+The most important implementation rule is:
+
+AI proposes.
+Schema validation filters.
+Policy decides.
+Authorization approves.
+Least-privileged components execute.
+Audit logging records everything.
+
+BackSpin should first become a reliable, testable, dry-run defensive pipeline. Real containment, real deception infrastructure, and production deployment should be added only after the event model, policy boundaries, authorization checks, and security tests are stable.
