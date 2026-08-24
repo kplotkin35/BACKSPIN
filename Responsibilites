@@ -1,0 +1,46 @@
+```text
+domain/
+    Shared models and enums
+
+sensors/
+    Read-only telemetry collection
+
+normalization/
+    Convert raw sensor data into normalized events
+
+event_bus/
+    Queueing and asynchronous event delivery
+
+detection/
+    Deterministic and behavioral detection rules
+
+scoring/
+    Threat score calculation
+
+ai/
+    AI provider interfaces and structured analysis
+
+policy/
+    Policy evaluation and action approval
+
+authorization/
+    Identity, scope, and approval checks
+
+response/
+    Local containment adapters
+
+deception/
+    Isolated decoy environments
+
+intelligence/
+    IOC and TTP extraction
+
+incidents/
+    Incident lifecycle and persistence
+
+reporting/
+    Human-readable and machine-readable reports
+
+observability/
+    Metrics, audit logs, and health checks
+```
