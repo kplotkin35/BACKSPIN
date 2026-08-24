@@ -1,0 +1,44 @@
+# /src/backspin/sensors/base.py
+
+"""Sensor interfaces and safe development sensor."""
+
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from collections.abc import Iterable
+
+from backspin.domain.models import EventType, SecurityEvent
+
+
+class Sensor(ABC):
+    """Base interface for telemetry sensors."""
+
+    @abstractmethod
+    def collect(self) -> Iterable[SecurityEvent]:
+        """Collect normalized security events."""
+
+
+class SyntheticSensor(Sensor):
+    """Generate deterministic events for development and testing."""
+
+    def collect(self) -> Iterable[SecurityEvent]:
+        """Return representative synthetic telemetry."""
+        yield SecurityEvent(
+            event_type=EventType.PROCESS_START,
+            host_id="lab-host",
+            source="synthetic",
+            data={
+                "process_name": "unknown-process",
+                "path": "/tmp/unknown-process",
+            },
+        )
+
+        yield SecurityEvent(
+            event_type=EventType.PERSISTENCE,
+            host_id="lab-host",
+            source="synthetic",
+            data={
+                "mechanism": "unknown",
+                "location": "synthetic-test",
+            },
+        )
